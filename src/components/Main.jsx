@@ -5,6 +5,7 @@ import WeatherCard from "./WeatherCard";
 const Main = () => {
   const [searchText, setSearchText] = useState("");
   const [data, setData] = useState([]);
+  const [error, setError] = useState("");
   const handleChange = (e) => {
     setSearchText(e.target.value);
   };
@@ -23,9 +24,24 @@ const Main = () => {
       //   console.log(response);
       const { main, name, sys, weather, id } = response.data;
       const iconUrl = `https://openweathermap.org/img/wn/${weather[0].icon}@2x.png`;
-      setData([...data, { main, name, sys, weather, iconUrl, id }]);
+
+      const isExist = data.some((card) => card.id === id);
+      if (isExist) {
+        setError(
+          `You already know the weather for ${name}, Please search for another city 😉`
+        );
+        setTimeout(() => {
+          setError("");
+        }, 5000);
+      } else {
+        setData([{ main, name, sys, weather, iconUrl, id }, ...data]);
+      }
     } catch (err) {
       console.log(err);
+      setError(err.message);
+      setTimeout(() => {
+        setError("");
+      }, 5000);
     }
   };
   console.log(data);
@@ -40,7 +56,7 @@ const Main = () => {
           autoFocus
         />
         <button type="submit">SUBMIT</button>
-        <span className="msg"></span>
+        <span className="msg">{error}</span>
       </form>
       <div className="container">
         <ul className="cities">
